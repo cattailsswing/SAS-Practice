@@ -1,0 +1,88 @@
+%let NObs = 1000;
+data Unif(keep=u x k n m);
+call streaminit(123);
+a = 1; b = 100000;
+Min = 5; Max = 10;
+do i = 1 to &NObs;
+   u = rand("Uniform");    /* U[0,1] */
+   x = a + (b-a)*u;        /* U[a,b] */
+   k = ceil( Max*u );      /* uniform integer in 1..Max */
+   n = floor( (1+Max)*u ); /* uniform integer in 0..Max */
+   m = min + floor((1+Max-Min)*u); /* uniform integer in Min..Max */
+   output;
+end;
+run;
+
+proc print data=Unif;
+run;
+
+ ods csv file='C:\Users\Brooke\Desktop\test.csv';
+   proc print data=Unif;
+   run;
+   ods csv close;
+
+data newtest;
+   set Unif(keep=x);
+run;
+proc print data=newtest;
+run;
+
+
+proc transpose data=newtest out=test_tran;
+run;
+proc print data=test_tran;
+run;
+
+data test_tran_fi;
+set test_tran;
+name_list=catx(';', OF COL1-COL1000)||';';
+run;
+
+proc print data=test_tran_fi;
+run;
+
+proc print data=test_tran_fi;
+var name_list;
+run;
+
+data final;
+   set test_tran_fi(keep=name_list);
+run;
+proc print data=final;
+run;
+
+ods csv file='C:\Users\Brooke\Desktop\test.csv';
+   proc print data=Unif;
+   run;
+   ods csv close;
+
+   ODS TAGSETS.EXCELXP
+file='C:\Users\Brooke\Desktop\final.xls'
+STYLE=Printer
+OPTIONS ( Orientation = 'landscape'
+FitToPage = 'yes'
+Pages_FitWidth = '1'
+Pages_FitHeight = '100' 
+embedded_titles = 'yes');
+proc print data=final;
+run;
+
+ods tagsets.excelxp close;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
